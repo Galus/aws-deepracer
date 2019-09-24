@@ -79,6 +79,7 @@ def reward_function(params):
             current_reward *= 0.8
         return current_reward
 
+    reward = math.exp(-6 * distance_from_center)
     reward = on_track_reward(reward, on_track)  # stay on track
     reward = distance_from_center_reward(reward, track_width, distance_from_center) # stay center
     reward = complete_lap(reward, progress) # promote full laps
