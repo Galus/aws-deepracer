@@ -3,8 +3,8 @@ def reward_function(params):
     import math
     
     # Read input parameters
-    track_width = params['track_width']
-    distance_from_center = params['distance_from_center']
+    track_w = params['track_width']
+    off_center_dist = params['distance_from_center']
     speed = params['speed']
     steering = abs(params['steering_angle']) 
     progress = params['progress']
@@ -15,11 +15,6 @@ def reward_function(params):
     MAX_REWARD = 1e2
     DIRECTION_THRESHOLD = 10.0
     ABS_STEERING_THRESHOLD = 30
-    MAX_SPEED = 8.0
-    speed_slug = 0.01 * MAX_SPEED
-    speed_slow = 0.11 * MAX_SPEED
-    speed_moderate = 0.33 * MAX_SPEED
-    speed_fast = 0.80 * MAX_SPEED
     
     def on_track_reward(current_reward, on_track):
         if not on_track:
@@ -28,19 +23,19 @@ def reward_function(params):
             current_reward = MAX_REWARD
         return current_reward
     
-    def distance_from_center_reward(current_reward, track_width, distance_from_center):
+    def off_center_dist_reward(current_reward, track_w, off_center_dist):
         # Calculate 3 markers that are at varying distances away from the center line
-        marker_1 = 0.1 * track_width
-        marker_2 = 0.25 * track_width
-        marker_3 = 0.5 * track_width
+        marker_1 = 0.1 * track_w
+        marker_2 = 0.25 * track_w
+        marker_3 = 0.5 * track_w
 
         # Give higher reward if the car is closer to center line and vice versa
         # Pretty much the center
-        if distance_from_center <= marker_1:
+        if off_center_dist <= marker_1:
            current_reward = 0.99
-        elif distance_from_center <= marker_2:
+        elif off_center_dist <= marker_2:
             current_reward = 0.33
-        elif distance_from_center <= marker_3:
+        elif off_center_dist <= marker_3:
             current_reward = 0.11
         else:
             current_reward = 1e-3           # likely crashed/ close to off track
@@ -79,9 +74,9 @@ def reward_function(params):
         return current_reward
 
     import math 
-    reward = math.exp(-6 * distance_from_center)
+    reward = math.exp(-6 * off_center_dist)
     reward = on_track_reward(reward, on_track)  # stay on track
-    reward = distance_from_center_reward(reward, track_width, distance_from_center) # stay center
+    reward = off_center_dist_reward(reward, track_w, off_center_dist) # stay center
     reward = complete_lap(reward, progress) # promote full laps
     reward = like_sanic(reward, speed)  # promote going moderate speed, penalize sluggish and too fast
     reward = straight_line_reward(reward, steering, speed)  # promote going fast in a straight line
@@ -89,7 +84,7 @@ def reward_function(params):
     # need to implement v
     #reward = steering_reward(reward, steering)
     #
-    #reward = distance_from_center_reward(reward, track_width, distance_from_center)
+    #reward = off_center_dist_reward(reward, track_w, off_center_dist)
     return float(reward)
 
     def straight_line_reward(current_reward, steering, speed):
@@ -104,9 +99,9 @@ def reward_function(params):
             current_reward *= 0.8
         return current_reward
  
-    reward = math.exp(-6 * distance_from_center)
+    reward = math.exp(-6 * off_center_dist)
     reward = on_track_reward(reward, all_wheels_on_track)  # stay on track (additive)
-    reward = distance_from_center_reward(reward, track_width, distance_from_center) # stay center
+    reward = off_center_dist_reward(reward, track_w, off_center_dist) # stay center
     reward = complete_lap(reward, progress) # promote full laps
     reward = like_sanic(reward, speed)  # promote going moderate speed, penalize sluggish and too fast
     reward = straight_line_reward(reward, steering, speed)  # promote going fast in a straight line
