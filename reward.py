@@ -6,6 +6,7 @@ def reward_function(params):
     track_width = params['track_width']
     distance_from_center = params['distance_from_center']
     speed = params['speed']
+    steering = abs(params['steering_angle']) 
     progress = params['progress']
     on_track = params['all_wheels_on_track']
     
